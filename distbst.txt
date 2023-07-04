@@ -1,0 +1,272 @@
+import java.io.*;
+import java.util.*;
+class Node {
+    int data;
+    int level;
+    int mnt;
+    int bf;
+    boolean v;
+    Node left;
+    Node right;
+    Node parent;
+}
+class Bst {
+    Node head;
+    int height;
+    int minmnt;
+    int maxmnt;
+    boolean lt,rt;
+    int maxbf;
+    int dia;
+    int count;
+    boolean b=true;
+    void add(int val) {
+        head = addRec(head, val,0,0,null);
+        head.parent=null;
+        
+    }
+    Node addRec(Node node, int val,int level,int mnt,Node np) {
+        if (node == null) {
+            Node newNode = new Node();
+            newNode.data = val;
+            newNode.left = null;
+            newNode.right = null;
+            newNode.level=level;
+            newNode.mnt=mnt;
+            newNode.parent=np;
+            newNode.bf=0;
+            height=Math.max(height,level);
+            minmnt=Math.min(minmnt,mnt);
+            maxmnt=Math.max(maxmnt,mnt);
+            return newNode;
+        }
+        if (val < node.data) {
+            node.left = addRec(node.left, val,node.level+1,node.mnt-1,node);
+        } else if (val > node.data) {
+            node.right = addRec(node.right, val,node.level+1,node.mnt+1,node);
+        }
+        return node;
+    }
+    int incexc(Node node){
+        if(node==null) return 0;
+        else{
+            int inc=node.data;
+            if(node.right!=null) inc=inc+incexc(node.right.left)+incexc(node.right.right);
+            if(node.left!=null) inc=inc+incexc(node.left.left)+incexc(node.left.right);
+            int exc=incexc(node.left)+incexc(node.right);    
+            return Math.max(inc,exc);
+        }
+    }
+    void dispio() {
+        if (head == null)
+            System.out.println("empty");
+        else {
+            io(head);
+        }
+    }
+    void io(Node node) {
+        if (node != null) {
+            io(node.left);
+            io(node.right);
+        }
+    }
+    void level(){
+        tra(head);
+    }
+    void tra(Node node){
+        if(node!=null){
+            tra(node.left);
+            tra(node.right);
+        }
+    }
+    void disppo() {
+        if (head == null)
+            System.out.println("empty");
+        else {
+            po(head);
+        }
+    }
+     void po(Node node) {
+        if (node != null) {
+            po(node.left);
+            po(node.right);
+            System.out.print(node.data + " ");
+        }
+    }
+    void disppr() {
+        if (head == null)
+            System.out.println("empty");
+        else {
+            pr(head);
+        }
+    }
+     void pr(Node node) {
+        if (node != null) {
+            System.out.print(node.data + " ");
+            pr(node.left);
+            pr(node.right);
+        }
+    }
+    boolean isfb(){
+        if(head==null) {return true;}
+        return isfbrec(head,true);
+    } 
+    boolean isfbrec(Node node,boolean b){
+        if(b){
+        if(node.left==null&&node.right==null){ return true;}
+        else if(node.left!=null&&node.right!=null){
+            return isfbrec(node.left,b) && isfbrec(node.right,b);
+        }
+        else {return false;}
+    }
+        return false;
+    }
+     boolean isCBT() {
+        if (head == null) {
+            return true; }
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(head);
+        boolean hasIncompleteLevel = false;
+        while (!queue.isEmpty()) {
+            Node current = queue.poll();
+            if (current == null) {
+                hasIncompleteLevel = true;
+            } else {
+                if (hasIncompleteLevel) {
+                    return false;
+                }
+                queue.offer(current.left);
+                queue.offer(current.right);
+            }
+        }
+
+        return true;
+    }
+    void diarec(Node node){
+        if(node!=null){
+            diarec(node.left);
+        int val=1;
+        if(node.left!=null) val=val+heirec(node.left)+1;
+        if(node.right!=null) val=val+heirec(node.right)+1;
+        dia=Math.max(dia,val);
+        diarec(node.right);
+        }
+    }
+    int height(){return heirec(head);}
+    int heirec(Node node){
+        if(node==null) return 0;
+        else if(node!=null&&(node.left==null&&node.right==null)) return 0;
+        else return(1+Math.max(heirec(node.left),heirec(node.right)));
+    }
+    void levelorder(){
+        HashMap<Integer,ArrayList<Integer>>h=new HashMap<>();
+        levelrec(head,h);
+        for(int i=height;i>=0;i--){
+            if(i%2==0){
+                ArrayList<Integer> arl=new ArrayList<>(h.get(i));
+                for(int kni:arl) System.out.print(kni+" ");
+            }
+            else{
+                ArrayList<Integer> arl=new ArrayList<>(h.get(i));
+                for(int indx=arl.size()-1;indx>=0;indx--) System.out.print(arl.get(indx)+" ");
+            }
+        }
+    }
+    void levelrec(Node node,HashMap<Integer,ArrayList<Integer>> h){
+        if(node!=null){
+            levelrec(node.right,h);
+            if(h.containsKey(node.level)){
+                h.get(node.level).add(node.data);
+            }
+            else{
+                ArrayList<Integer> abd=new ArrayList<>();
+                abd.add(node.data);
+                h.put(node.level,abd);
+            }
+            levelrec(node.left,h);
+        }
+    }
+    Node getNode(int val,Node node){
+        if(node.data==val) return node;
+        else if(val<node.data) return getNode(val,node.left);
+        else if(val>node.data) return getNode(val,node.right);
+        else return null;
+    }
+    void nadk(Node node,int inc,int dist){
+        if(node==null){return;}
+        else if(inc==dist) {count++; //System.out.println("at data"+node.data);
+        }else{
+          //  System.out.print(node.data+"->");
+            nadk(node.left,inc+1,dist);
+            nadk(node.right,inc+1,dist);
+        }
+        
+    }
+    void parentcounts(Node node,int inc,int dist,boolean ban){
+        if(node==null) return;
+        else if(inc==dist) {count++; //System.out.println("par data"+node.data);}
+        }
+        else if(node==head){if(ban) nadk(head.left,inc+1,dist);
+            else nadk(head.right,inc+1,dist);}
+        else {parentcounts(node.parent,inc+1,dist,ban);//System.out.print(node.data+">>");}
+    }}
+    void balance(Node node){
+        if(node!=null){
+        balance(node.left);
+        if(node.left==null&&node.right!=null) node.bf=-(heirec(node.right)+1);
+        else if(node.left!=null&&node.right==null) node.bf=heirec(node.left)+1;
+        else
+        node.bf=heirec(node.left)-heirec(node.right);
+        maxbf=Math.max(maxbf,Math.abs(node.bf));
+        balance(node.right);
+    }}
+    boolean isBalancedTree(Node node){
+            if(node==null ) return true;
+            else if(Math.abs(node.bf)>1) return false;
+            else return isBalancedTree(node.left)&&isBalancedTree(node.right);
+    }
+    // void remove(int val){
+    //     head=removerec(head,val);
+    // }
+    // Node removerec(Node node,int val){
+    //     if(node.data==val){
+    //         if(node.left==null&&node.right==null) {node=null; return 
+    //     }
+        
+    // }
+    
+}
+public class Main {
+    public static void main(String[] args)throws Exception{
+         Scanner sc=new Scanner(System.in);
+        // BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+        // PriorityQueue<Integer> p=new PriorityQueue<>();
+         int t=sc.nextInt();
+         sc.nextLine();
+         while(t-->0){
+        //     StringTokenizer s=new StringTokenizer(br.readLine());
+        //     String s1=s.nextToken();
+        //     if(s1.equals("insert")) p.offer(Integer.parseInt(s.nextToken()));
+        //     else if(s1.equals("getMin")){if(p.isEmpty()) System.out.println("Empty");
+        //         else System.out.println(p.peek());
+        //     }
+        //     else{
+        //         if(!p.isEmpty()) p.poll();
+        //     }
+        int n=sc.nextInt();
+        int s=sc.nextInt();
+        int k=sc.nextInt();
+        Bst a = new Bst();
+        for(int i=0;i<n;i++) a.add(sc.nextInt());
+       // Node fun=a.getNode(s,a.head);
+       // System.out.println("this data :"+fun.data);
+       boolean b;
+       if(s>a.head.data) b=true;
+       else b=false;
+        a.nadk(a.getNode(s,a.head),0,k);
+        a.parentcounts(a.getNode(s,a.head),0,k,b);
+        System.out.println(a.count);
+       // System.out.println(a.maxbf>1?"No":"Yes");
+        }
+    }
+}
